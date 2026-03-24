@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
-from rag_pipeline import generate_answer
+from src.rag_pipeline import generate_answer
 
 app = FastAPI()
 
