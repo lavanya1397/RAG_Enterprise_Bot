@@ -1,14 +1,13 @@
 import os
-os.chdir(r"C:\Users\l.l.ravichandran\RAG_Enterprise_Assistant")
-print(os.getcwd())
-
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_community.vectorstores import FAISS
 from sentence_transformers import CrossEncoder
 
 from dotenv import load_dotenv
-import os
 from groq import Groq
+
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+FAISS_PATH = os.path.join(BASE_DIR, "faiss_index")
 
 # Load embedding model
 embedding_model = HuggingFaceEmbeddings(
@@ -20,7 +19,7 @@ reranker = CrossEncoder("cross-encoder/ms-marco-MiniLM-L-6-v2")
 
 # Load vector DB
 vectorstore = FAISS.load_local(
-    "faiss_index",
+    FAISS_PATH,
     embedding_model,
     allow_dangerous_deserialization=True
 )
@@ -111,76 +110,76 @@ def generate_answer(query, chat_history):
     return response.choices[0].message.content
 
 
-########## Evaluation ############
-eval_data = [
-    {
-        "question": "What is fallout in the system?",
-        "ground_truth": "Fallout refers to orders that fail during processing due to errors or mismatches."
-    },
-    {
-        "question": "What model was used?",
-        "ground_truth": "An XGBoost model was used for prediction."
-    },
-    {
-        "question": "How was model accuracy measured?",
-        "ground_truth": "Using recall and precision"
-    },
-    {
-        "question": "How is missing data handled?",
-        "ground_truth": "Missing numerical columns are filled with 0 and categorical columns were replaced with no_data, filling with the most frequent category and Context-based imputation depending on feature distribution"
-    },
-    {
-        "question": "How does the model improve customer experience?",
-        "ground_truth": "By predicting fallouts beforehand the model allows to improvise order journey for the customer and hence improves customer experience."
-    }
-]
+# ########## Evaluation ############
+# eval_data = [
+#     {
+#         "question": "What is fallout in the system?",
+#         "ground_truth": "Fallout refers to orders that fail during processing due to errors or mismatches."
+#     },
+#     {
+#         "question": "What model was used?",
+#         "ground_truth": "An XGBoost model was used for prediction."
+#     },
+#     {
+#         "question": "How was model accuracy measured?",
+#         "ground_truth": "Using recall and precision"
+#     },
+#     {
+#         "question": "How is missing data handled?",
+#         "ground_truth": "Missing numerical columns are filled with 0 and categorical columns were replaced with no_data, filling with the most frequent category and Context-based imputation depending on feature distribution"
+#     },
+#     {
+#         "question": "How does the model improve customer experience?",
+#         "ground_truth": "By predicting fallouts beforehand the model allows to improvise order journey for the customer and hence improves customer experience."
+#     }
+# ]
 
-results = []
-for item in eval_data:
-    question = item["question"]
-    gt = item["ground_truth"]
+# results = []
+# for item in eval_data:
+#     question = item["question"]
+#     gt = item["ground_truth"]
 
-    answer = generate_answer(question, [])
+#     answer = generate_answer(question, [])
 
-    results.append({
-        "question": question,
-        "ground_truth": gt,
-        "model_answer": answer
-    })
+#     results.append({
+#         "question": question,
+#         "ground_truth": gt,
+#         "model_answer": answer
+#     })
 
-def evaluate_with_llm(question, gt, answer):
-    prompt = f"""
-    Question: {question}
+# def evaluate_with_llm(question, gt, answer):
+#     prompt = f"""
+#     Question: {question}
 
-    Ground Truth: {gt}
+#     Ground Truth: {gt}
 
-    Model Answer: {answer}
+#     Model Answer: {answer}
 
-    Is the model answer correct and relevant?
-    Answer only: Correct or Incorrect
-    """
+#     Is the model answer correct and relevant?
+#     Answer only: Correct or Incorrect
+#     """
 
-    response = client.chat.completions.create(
-        model="llama-3.3-70b-versatile",
-        messages=[{"role": "user", "content": prompt}]
-    )
+#     response = client.chat.completions.create(
+#         model="llama-3.3-70b-versatile",
+#         messages=[{"role": "user", "content": prompt}]
+#     )
 
-    return response.choices[0].message.content.strip()
+#     return response.choices[0].message.content.strip()
 
-correct = 0
-for item in results:
-    verdict = evaluate_with_llm(
-        item["question"],
-        item["ground_truth"],
-        item["model_answer"]
-    )
+# correct = 0
+# for item in results:
+#     verdict = evaluate_with_llm(
+#         item["question"],
+#         item["ground_truth"],
+#         item["model_answer"]
+#     )
 
-    print(f"\nQ: {item['question']}")
-    print(f"Answer: {item['model_answer']}")
-    print(f"Verdict: {verdict}")
+#     print(f"\nQ: {item['question']}")
+#     print(f"Answer: {item['model_answer']}")
+#     print(f"Verdict: {verdict}")
 
-    if "Correct" in verdict:
-        correct += 1
+#     if "Correct" in verdict:
+#         correct += 1
 
-accuracy = correct / len(results)
-print(f"\nFinal Accuracy: {accuracy}")
+# accuracy = correct / len(results)
+# print(f"\nFinal Accuracy: {accuracy}")
