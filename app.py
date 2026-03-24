@@ -2,7 +2,7 @@ import streamlit as st
 import requests
 from src.rag_pipeline import generate_answer
 
-API_URL = "http://127.0.0.1:8000/ask"
+API_URL = "https://rag-enterprise-bot.onrender.com/ask"
 
 st.set_page_config(page_title="AI Chatbot", layout="wide")
 
