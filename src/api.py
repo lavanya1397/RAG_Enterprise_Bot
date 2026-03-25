@@ -16,10 +16,12 @@ def home():
 
 @app.post("/ask")
 def ask_question(request: QueryRequest):
-    from src.rag_pipeline import generate_answer
-    answer = generate_answer(request.query, request.chat_history)
-
-    return {
-        "query": request.query,
-        "answer": answer
-    }
+    try:
+       from src.rag_pipeline import generate_answer
+       answer = generate_answer(request.query, request.chat_history)
+       return {
+           "query": request.query,
+           "answer": answer
+        }
+     except Exception as e:
+        return {"error": str(e)}
