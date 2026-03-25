@@ -23,5 +23,5 @@ def ask_question(request: QueryRequest):
            "query": request.query,
            "answer": answer
         }
-     except Exception as e:
+    except Exception as e:
         return {"error": str(e)}
