@@ -1,6 +1,5 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
-from src.rag_pipeline import generate_answer
 
 app = FastAPI()
 
@@ -17,6 +16,7 @@ def home():
 
 @app.post("/ask")
 def ask_question(request: QueryRequest):
+    from src.rag_pipeline import generate_answer
     answer = generate_answer(request.query, request.chat_history)
 
     return {
