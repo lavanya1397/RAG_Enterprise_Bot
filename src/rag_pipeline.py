@@ -2,12 +2,12 @@ import os
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_community.vectorstores import FAISS
 from sentence_transformers import CrossEncoder
-
-from dotenv import load_dotenv
 from groq import Groq
 
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))  # just the src folder
 FAISS_PATH = os.path.join(BASE_DIR, "faiss_index")
+if not os.path.exists(FAISS_PATH):
+    raise FileNotFoundError(f"FAISS index not found at {FAISS_PATH}")
 
 # Load embedding model
 embedding_model = HuggingFaceEmbeddings(
@@ -27,8 +27,10 @@ vectorstore = FAISS.load_local(
 retriever = vectorstore.as_retriever(search_kwargs={"k": 3})
 
 # Initialize Groq client
-load_dotenv()
-client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
+api_key = os.environ.get("GROQ_API_KEY")
+if not api_key:
+    raise ValueError("GROQ_API_KEY environment variable is missing")
+client = Groq(api_key=api_key)
 
 #Reranking function
 def rerank_docs(query, docs, top_k=3):
