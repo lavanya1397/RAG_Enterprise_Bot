@@ -4,10 +4,8 @@ from langchain_community.vectorstores import FAISS
 from sentence_transformers import CrossEncoder
 from groq import Groq
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))  # just the src folder
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 FAISS_PATH = os.path.join(BASE_DIR, "faiss_index")
-if not os.path.exists(FAISS_PATH):
-    raise FileNotFoundError(f"FAISS index not found at {FAISS_PATH}")
 
 # Load embedding model
 embedding_model = HuggingFaceEmbeddings(
