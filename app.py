@@ -16,7 +16,7 @@ for msg in st.session_state.messages:
     with st.chat_message(msg["role"]):
         st.write(msg["content"])
 
-# Chat inputstreamlit 
+# Chat input
 query = st.chat_input("Ask something...")
 
 if query:
@@ -29,13 +29,29 @@ if query:
     # Generate response
     with st.chat_message("assistant"):
         with st.spinner("Thinking..."):
-            response = requests.post(API_URL, json={
-                "query": query,
-                "chat_history": st.session_state.messages
-            })
+            try:
+                response = requests.post(API_URL, json={
+                    "query": query,
+                    "chat_history": st.session_state.messages
+                })
 
-            answer = response.json()["answer"]
-            st.write(answer)
+                if response.status_code == 200:
+                    try:
+                        data = response.json()
+                        answer = data.get("answer", "No answer returned")
+                        st.write(answer)
+                    except Exception:
+                        st.error("Invalid JSON response from API")
+                        st.text(response.text)
+                        answer = "Error occurred"
+                else:
+                    st.error(f"API Error {response.status_code}")
+                    st.text(response.text)
+                    answer = "Error occurred"
+
+            except requests.exceptions.RequestException as e:
+                st.error(f"Request failed: {e}")
+                answer = "Error occurred"
 
     # Store assistant response
     st.session_state.messages.append(
