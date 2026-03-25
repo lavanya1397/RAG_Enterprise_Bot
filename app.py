@@ -1,6 +1,5 @@
 import streamlit as st
 import requests
-from src.rag_pipeline import generate_answer
 
 API_URL = "https://rag-enterprise-bot.onrender.com/ask"
 
